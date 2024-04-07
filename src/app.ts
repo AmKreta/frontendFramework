@@ -1,9 +1,13 @@
-import { Component } from "./lib/core/component/compinent";
+import { Component } from "./lib/core/component/component";
 import { Effect} from "./lib/core/effect/effect";
 import { State } from "./lib/core/state/state";
 
 @Component({
-    selector:"app-button"
+    selector:"app-button",
+    template:`<div id="hello">
+        <p>{text}</p>
+        <button onclick={logValue}> click to increment {click_count} </button>
+    </div>`
 })
 class Button{
    @State() 
@@ -14,13 +18,9 @@ class Button{
     console.log('ran');
    }
 
-   render(){
-    return `<div id={click_count}>
-            <p>{text}</>
-            <button> click to increment {click_count} </button>
-        </div>`;
+   logValue(e:MouseEvent){
+    console.log('')
    }
-
 }
 
 
