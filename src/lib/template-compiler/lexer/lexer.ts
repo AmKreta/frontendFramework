@@ -2,28 +2,32 @@ import { TOKEN_TYPE, Token, TokenFactory } from "../tokens/tokens";
 import { getDelimeterForAttributes, isTextOrInterpolation } from "./util";
 
 export class Lexer{
-    currentPosition = 0;
-    prevToken = new Token(TOKEN_TYPE.START_OF_FILE);
+    private currentPosition = 0;
+    private prevToken = new Token(TOKEN_TYPE.START_OF_FILE);
     
     constructor(private source:string){}
 
-    advance(jump=1){
+    public peek(position=1){
+        return this.source.substring(this.currentPosition, this.currentPosition+position);
+    }
+
+    private advance(jump=1){
         this.currentPosition+=jump;
     }
 
-    skipWhitespace(){
+    private skipWhitespace(){
         while(this.source[this.currentPosition]===' '){
             this.advance();
         }
     }
 
-    skipNextLine(){
+    private skipNextLine(){
         while(this.source[this.currentPosition]==='\n'){
             this.advance();
         }
     }
 
-    skipSkipable(){
+    private skipSkipable(){
         this.skipNextLine();
         this.skipWhitespace();
     }
@@ -65,7 +69,7 @@ export class Lexer{
         }
     }
 
-    readTagName(){
+    private readTagName(){
         let jump = this.currentPosition;
         while(jump < this.source.length && isTextOrInterpolation(this.source[jump])){
             jump++;
@@ -75,7 +79,7 @@ export class Lexer{
         return res;
     }
 
-    readAttributeName(){
+    private readAttributeName(){
         let jump = this.currentPosition;
         if(!/[a-zA-Z]/.test(this.source[this.currentPosition])){
             throw "attribute name should start with digit only";
@@ -92,7 +96,7 @@ export class Lexer{
         return res;
     }
 
-    readAttributeValue(){
+    private readAttributeValue(){
         if(["'",'"','`','{'].includes(this.source[this.currentPosition])){
             let delimeter = getDelimeterForAttributes(this.source[this.currentPosition]);
             this.advance();
@@ -108,8 +112,7 @@ export class Lexer{
         throw "atrribute name should be interpolation or in quotes or backtick";
     }
 
-    readInnerText(){
-        this.skipSkipable();
+    private readInnerText(){
         let jump = this.currentPosition;
         let delimeter = '<';
         while(jump < this.source.length && this.source[jump]!=delimeter){
@@ -117,7 +120,7 @@ export class Lexer{
         }
         let res = this.source.substring(this.currentPosition, jump);
         this.advance(jump-this.currentPosition);
-        return res;
+        return res.replace(/\s+/g, ' ').trim();
     }
 }
 
