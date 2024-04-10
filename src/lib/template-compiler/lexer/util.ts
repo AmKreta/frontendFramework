@@ -15,3 +15,15 @@ export function getDelimeterForAttributes(text:string){
         default: return '<'; // for plain simple text , either closing or opening tag wil be the delimeter
     }
 }
+
+export function appendThis(input:string) {
+    let modifiedVars = new Set<string>();
+    const result = input.replace(/(^|[^A-Za-z0-9_$'])\b([A-Za-z$_][A-Za-z0-9$_]*)(?!')\b/g, (match, prefix, varName) => {
+        if (!['true', 'false', 'null', 'undefined', 'NaN', 'Infinity'].includes(varName)) {
+            modifiedVars.add(varName);
+            return prefix + 'this.' + varName;
+        }
+        return match;
+    });
+    return { output: result, modifiedVars: Array.from(modifiedVars) };
+}

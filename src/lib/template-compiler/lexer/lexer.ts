@@ -1,5 +1,6 @@
+import { ElementProperty } from "../node/Elementproperty";
 import { TOKEN_TYPE, Token, TokenFactory } from "../tokens/tokens";
-import { getDelimeterForAttributes, isTextOrInterpolation } from "./util";
+import { appendThis, getDelimeterForAttributes, isTextOrInterpolation } from "./util";
 
 export class Lexer{
     private currentPosition = 0;
@@ -97,19 +98,33 @@ export class Lexer{
     }
 
     private readAttributeValue(){
-        if(["'",'"','`','{'].includes(this.source[this.currentPosition])){
+        if(["'",'"',"{"].includes(this.source[this.currentPosition])){
             let delimeter = getDelimeterForAttributes(this.source[this.currentPosition]);
+            let isInterpolation = this.source[this.currentPosition] === '{';
             this.advance();
             let jump = this.currentPosition;
+            let startedReadingWord = true;
             while(jump < this.source.length && this.source[jump]!=delimeter){
                 jump++;
+                if(this.source[jump]===' '){
+                    startedReadingWord = false;
+                }
             }
-            let res = this.source.substring(this.currentPosition, jump);
+            let raw_attr = this.source.substring(this.currentPosition, jump);
+            let attribute;
+            if(isInterpolation){
+                let res = appendThis(raw_attr);
+                attribute = new ElementProperty(res.output, res.modifiedVars)
+            }
+            else{
+                attribute = new ElementProperty(raw_attr, [])
+            }
             this.advance(jump-this.currentPosition);
-            this.advance(); // jumping off closing quote / interpolation
-            return res;
+            // jumping delimeter
+            this.advance();
+            return attribute;
         }
-        throw "atrribute name should be interpolation or in quotes or backtick";
+        throw "atrribute value should be in quotes or interpolation";
     }
 
     private readInnerText(){

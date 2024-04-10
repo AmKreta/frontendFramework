@@ -1,3 +1,5 @@
+import { ElementProperty } from "../node/Elementproperty";
+
 export enum TOKEN_TYPE{
     START_OF_FILE = 'START_OF_FILE',
     END_OF_FILE = 'END_OF_FILE',
@@ -14,7 +16,7 @@ export enum TOKEN_TYPE{
 export class Token{
     constructor(
         public type:TOKEN_TYPE,
-        public value?: string,
+        public value?: string | ElementProperty,
         public dynamic?: boolean,
         public dynamicType?:'jsInterpolation' | 'templateInterpolation',
         public dependsUpon?:string[],
@@ -40,7 +42,7 @@ export class TokenFactory{
         return new Token(token, TOKEN_MAP[token]);
     }
 
-    static createFromTypeAndValue(token:TOKEN_TYPE, value:string, dynamic?:boolean, dynamicType?:'jsInterpolation' | 'templateInterpolation',  dependsUpon?:string[]){
+    static createFromTypeAndValue(token:TOKEN_TYPE, value:string | ElementProperty, dynamic?:boolean, dynamicType?:'jsInterpolation' | 'templateInterpolation',  dependsUpon?:string[]){
         return new Token(token, value, dynamic, dynamicType, dependsUpon);
     }
 }

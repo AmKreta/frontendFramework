@@ -4,11 +4,11 @@ import { State } from "./lib/core/state/state";
 
 @Component({
     selector:"app-button",
-    template:`<div id="hello">
+    template:`<div id={click_count}>
         inner HTML
         <div>
             <p>{text}</p>
-            <button onclick={logValue}> click to increment {click_count} </button>
+            <button onclick="{logValue}"> click to increment {click_count} </button>
         </div>
     </div>`
 })
