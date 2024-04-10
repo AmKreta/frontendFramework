@@ -1,6 +1,7 @@
 import { ElementProperty } from "../node/Elementproperty";
+import { InnerText } from "../node/innerText";
 import { TOKEN_TYPE, Token, TokenFactory } from "../tokens/tokens";
-import { appendThis, getDelimeterForAttributes, isTextOrInterpolation } from "./util";
+import { appendThis, buildInnerText, getDelimeterForAttributes, isTextOrInterpolation } from "./util";
 
 export class Lexer{
     private currentPosition = 0;
@@ -135,7 +136,15 @@ export class Lexer{
         }
         let res = this.source.substring(this.currentPosition, jump);
         this.advance(jump-this.currentPosition);
-        return res.replace(/\s+/g, ' ').trim();
+        res = res.replace(/\s+/g, ' ').trim();
+        let innerextArray = buildInnerText(res).map(str=>{
+            if(str.isInterpolation){
+                let val = appendThis(str.value);
+                return new ElementProperty(val.output, val.modifiedVars);
+            }   
+            return new ElementProperty(str.value,[]);
+        });
+        return new InnerText(innerextArray);
     }
 }
 

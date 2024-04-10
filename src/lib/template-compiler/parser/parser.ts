@@ -1,4 +1,7 @@
 import { Lexer } from "../lexer/lexer";
+import { AttributeValue } from "../node/AttributeValue";
+import { InnerText } from "../node/innerText";
+import { Node } from "../node/node";
 import { TOKEN_MAP, TOKEN_TYPE } from "../tokens/tokens";
 
 export class Parser{
@@ -19,63 +22,62 @@ export class Parser{
     }
 
     parseAttributes(){
-        let attributes = [];
+        let attributes:{name:string, value:AttributeValue}[] = [];
         while(this.currrentToken.type!=TOKEN_TYPE.TAG_CLOSE){
-            const name = this.currrentToken.value!;
+            const name = this.currrentToken.value! as string;
             this.eat(TOKEN_MAP[TOKEN_TYPE.ATTRIBUTE_NAME], true);
             this.eat(TOKEN_MAP[TOKEN_TYPE.ASSIGNMENT]);
-            const value = this.currrentToken.value!;
+            const value = this.currrentToken.value! as AttributeValue;
             this.eat(TOKEN_MAP[TOKEN_TYPE.ATTRIBUTE_VALUE], true);
             attributes.push({name, value});
         }
         return attributes;
     }
 
-    parseInnerText(){
-        let innerText = this.currrentToken.value;
+    parseInnerText(parent:Node){
+        let innerText = this.currrentToken.value as InnerText;
         this.eat(TOKEN_MAP[TOKEN_TYPE.INNER_TEXT], true);
+        innerText.parent = parent;
         return innerText;
     }
 
-    parseInnerHTML(){
-        return this.parseTags();
+    parseInnerHTML(parent:Node){
+        return this.parseTags(parent);
     }
 
-    parseChildren(){
-        let children:any = [];
+    parseChildren(parent:Node){
+        let children:(Node | InnerText)[] = [];
         while(!(this.currrentToken.type===TOKEN_TYPE.TAG_OPEN && this.lexer.peek()==='/')){
             if(this.currrentToken.type===TOKEN_TYPE.INNER_TEXT){
-                children.push(this.parseInnerText());
+                children.push(this.parseInnerText(parent));
             }
             else{
-                children.push(this.parseInnerHTML());
+                children.push(this.parseInnerHTML(parent));
             }
         }
         return children;
     }
 
-    parseTags(){
+    parseTags(parent:Node|null = null):Node{
         this.eat(TOKEN_MAP[TOKEN_TYPE.TAG_OPEN]);
         const tagName = this.currrentToken.value!;
         this.eat(TOKEN_MAP[TOKEN_TYPE.TAG_NAME], true);
 
         const attributes = this.parseAttributes();
         this.eat(TOKEN_MAP[TOKEN_TYPE.TAG_CLOSE]);
-
-        const children = this.parseChildren();
+        const node = new Node(
+            tagName as string,
+            attributes,
+            parent,
+            []
+        )
+        const children = this.parseChildren(node);
         this.eat(TOKEN_MAP[TOKEN_TYPE.TAG_OPEN]);
         this.eat(TOKEN_MAP[TOKEN_TYPE.TAG_CLOSE_SLASH])
         this.eat(TOKEN_MAP[TOKEN_TYPE.TAG_NAME], true);
         this.eat(TOKEN_MAP[TOKEN_TYPE.TAG_CLOSE]);
-
-        const node = {
-            tagName,
-            attributes,
-            children
-        }
-
+        node.children = children;
         return node;
-
     }
 
     parse(){

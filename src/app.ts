@@ -1,3 +1,4 @@
+import { Bootstrap } from "./lib/core/bootstrap/bootstrap";
 import { Component } from "./lib/core/component/component";
 import { Effect} from "./lib/core/effect/effect";
 import { State } from "./lib/core/state/state";
@@ -16,6 +17,9 @@ class Button{
    @State() 
    accessor click_count = 0;
 
+   @State()
+   accessor text = "this is a text";
+
    @Effect(['click_count'])
    update(){
     console.log('ran');
@@ -26,10 +30,5 @@ class Button{
    }
 }
 
-
-let c = new Button();
-
-console.log(c);
-
-(window as any).c = c;
+Bootstrap(Button);
 

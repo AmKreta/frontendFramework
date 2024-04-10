@@ -1,7 +1,7 @@
 export class ElementProperty{
     constructor(
-        private value:string, 
-        private dependsOn?:string[]
+        public value:string, 
+        public dependsOn?:string[]
     ){
     }
 };

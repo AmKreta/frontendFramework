@@ -1,7 +1,9 @@
 import { ElementProperty } from "./Elementproperty";
+import { Node } from "./node";
 
 export class InnerText{
     constructor(
-        private content: ElementProperty[]
+        public content: ElementProperty[],
+        public parent?:Node
     ){}
 }

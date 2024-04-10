@@ -27,3 +27,37 @@ export function appendThis(input:string) {
     });
     return { output: result, modifiedVars: Array.from(modifiedVars) };
 }
+
+export function buildInnerText(input:string){
+        let output = [];
+        let startIndex = 0;
+        let inInterpolation = false;
+    
+        for (let i = 0; i < input.length; i++) {
+            if (input[i] === '{' && input[i + 1] === '{') {
+                i++; // Skip the next '{' to avoid it being considered as interpolation
+                continue;
+            }
+    
+            if (input[i] === '{' && input[i - 1] !== '{') {
+                if (i > startIndex) {
+                    output.push({ value: input.substring(startIndex, i), isInterpolation: false });
+                }
+                inInterpolation = true;
+                startIndex = i + 1;
+            } else if (input[i] === '}' && input[i - 1] !== '}') {
+                if (inInterpolation) {
+                    let key = input.substring(startIndex, i);
+                    output.push({ value: key, isInterpolation: true });
+                    inInterpolation = false;
+                    startIndex = i + 1;
+                }
+            }
+        }
+    
+        if (startIndex < input.length) {
+            output.push({ value: input.substring(startIndex), isInterpolation: false });
+        }
+    
+        return output;
+}

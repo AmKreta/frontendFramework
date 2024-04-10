@@ -1,25 +1,14 @@
-enum ATTRIBUTE_VALUE_TYPE{
-    STATIC,
-    STRING_INTERPOLATION,
-    TEMPLATE_INTERPOLATION
-};
-
-interface ATTRIBUTE{
-    key:string;
-    value:{
-        type: ATTRIBUTE_VALUE_TYPE;
-        dependsOn?:string[]
-    }
-};
+import { AttributeValue } from "./AttributeValue";
+import { InnerText } from "./innerText";
 
 export class Node{
     ref?:HTMLElement;
 
     constructor(
-        private type:string,
-        private attributes:ATTRIBUTE[],
-        private parent:Node,
-        private children:Node[]
+        public tagName:string,
+        public attributes:{name:string, value:AttributeValue}[],
+        public parent:Node | null,
+        public children:(InnerText | Node)[]
     ){}
 
 }
