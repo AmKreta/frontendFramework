@@ -1,4 +1,5 @@
-import { ElementProperty } from "../node/Elementproperty";
+import { AttributeValue } from "../node/AttributeValue";
+import { InnerText } from "../node/innerText";
 
 export enum TOKEN_TYPE{
     START_OF_FILE = 'START_OF_FILE',
@@ -13,13 +14,12 @@ export enum TOKEN_TYPE{
     ASSIGNMENT = "ASSIGNMENT"
 }
 
+export type TokenValue = string | AttributeValue | InnerText;
+
 export class Token{
     constructor(
         public type:TOKEN_TYPE,
-        public value?: string | ElementProperty,
-        public dynamic?: boolean,
-        public dynamicType?:'jsInterpolation' | 'templateInterpolation',
-        public dependsUpon?:string[],
+        public value?: TokenValue,
     ){}
 }
 
@@ -42,7 +42,7 @@ export class TokenFactory{
         return new Token(token, TOKEN_MAP[token]);
     }
 
-    static createFromTypeAndValue(token:TOKEN_TYPE, value:string | ElementProperty, dynamic?:boolean, dynamicType?:'jsInterpolation' | 'templateInterpolation',  dependsUpon?:string[]){
-        return new Token(token, value, dynamic, dynamicType, dependsUpon);
+    static createFromTypeAndValue(token:TOKEN_TYPE, value: TokenValue){
+        return new Token(token, value);
     }
 }
