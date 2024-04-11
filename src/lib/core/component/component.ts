@@ -47,7 +47,9 @@ export function Component(options:ComponentOptions){
                             (element as any).addEventListener(attribute.name.substring(2),this.getInterpolatedValue(attribute.value.value).bind(this));
                         }
                         else{
-                            (element as any)[attribute.name] = this.getInterpolatedValue(attribute.value.value);
+                            (element as any)[attribute.name] = attribute.value.dependsOn 
+                                ?this.getInterpolatedValue(attribute.value.value)
+                                :attribute.value.value;
                         }
                     }
                     else{
