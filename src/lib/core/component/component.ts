@@ -31,6 +31,13 @@ export function Component(options:ComponentOptions){
                 return func.call(this);
             }
 
+            addPropertyStateChangeSubscriber(){
+                if((this as any).__proto__.propertyChangeSubscribers){
+                    return;
+                }
+                (this as any).__proto__.propertyChangeSubscribers = new Map();
+            }
+
             createElement(elementTree:Node){
                 const element:HTMLElement = document.createElement(elementTree.tagName as string);
                 elementTree.ref = element;
@@ -52,8 +59,19 @@ export function Component(options:ComponentOptions){
                     if(child instanceof InnerText){
                         child.content.forEach(childFragment=>{
                             if(childFragment.dependsOn?.length){
+                                this.addPropertyStateChangeSubscriber();
                                 let textNode = document.createTextNode(this.getInterpolatedValue(childFragment.value));
                                 element.appendChild(textNode);
+                                childFragment.dependsOn.forEach(dependency=>{
+                                    let subscriber = (this as any).propertyChangeSubscribers.get(dependency);
+                                    if(!subscriber){
+                                        subscriber = new Set();
+                                        (this as any).propertyChangeSubscribers.set(dependency, subscriber);
+                                    }
+                                    subscriber.add(()=>{
+                                        textNode.nodeValue = this.getInterpolatedValue(childFragment.value);
+                                    });
+                                });
                             }
                             else{
                                 let textNode = document.createTextNode(childFragment.value);

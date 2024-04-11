@@ -1,8 +1,8 @@
 function addStateChangeSubscriberToPrototype(this:any){
-    if(this.__proto__.stateChangeSubscribers){
+    if(this.__proto__.effectStateChageSubscribers){
         return;
     }
-    this.__proto__.stateChangeSubscribers = new Map();
+    this.__proto__.effectStateChageSubscribers = new Map();
 }
 
 export function Effect(dependencies:string[]){
@@ -10,10 +10,10 @@ export function Effect(dependencies:string[]){
         context.addInitializer(function(this:any){
             addStateChangeSubscriberToPrototype.call(this);
             dependencies.forEach(dependency=>{
-                let subscriber = this.stateChangeSubscribers.get(dependency);
+                let subscriber = this.effectStateChageSubscribers.get(dependency);
                 if(!subscriber){
                     subscriber = new Set();
-                    this.stateChangeSubscribers.set(dependency, subscriber);
+                    this.effectStateChageSubscribers.set(dependency, subscriber);
                 }
                 subscriber.add(context.name);
             });

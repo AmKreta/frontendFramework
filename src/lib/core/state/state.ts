@@ -16,10 +16,14 @@ export function State(){
             },
             set(this:T, val:V){
                 accessor.set.call(this, val);
-                let subscribers:any = (this as any).stateChangeSubscribers.get(context.name);
-                subscribers?.forEach((name:any)=>{
+                let effectSubscribers:any = (this as any).effectStateChageSubscribers.get(context.name);
+                effectSubscribers?.forEach((name:any)=>{
                     (this as any)[name]();
                 });
+                let propertySubscribers = (this as any).propertyChangeSubscribers.get(context.name);
+                propertySubscribers?.forEach((subscriber:any)=>{
+                    subscriber();
+                })
             }
         };
     }
