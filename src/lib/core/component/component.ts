@@ -47,6 +47,14 @@ export function Component(options:ComponentOptions){
                             (element as any).addEventListener(attribute.name.substring(2),this.getInterpolatedValue(attribute.value.value).bind(this));
                         }
                         else{
+                            if(attribute.value.dependsOn){
+                                (element as any)[attribute.name] = this.getInterpolatedValue(attribute.value.value);
+                                attribute.value.dependsOn.forEach(state=>{
+                                    this.subscribeToStateChange(state, ()=>{
+                                        (element as any).setAttribute(attribute.name, this.getInterpolatedValue(attribute.value.value));
+                                    })
+                                });
+                            }
                             (element as any)[attribute.name] = attribute.value.dependsOn 
                                 ?this.getInterpolatedValue(attribute.value.value)
                                 :attribute.value.value;
@@ -61,16 +69,10 @@ export function Component(options:ComponentOptions){
                     if(child instanceof InnerText){
                         child.content.forEach(childFragment=>{
                             if(childFragment.dependsOn?.length){
-                                this.addPropertyStateChangeSubscriber();
                                 let textNode = document.createTextNode(this.getInterpolatedValue(childFragment.value));
                                 element.appendChild(textNode);
                                 childFragment.dependsOn.forEach(dependency=>{
-                                    let subscriber = (this as any).propertyChangeSubscribers.get(dependency);
-                                    if(!subscriber){
-                                        subscriber = new Set();
-                                        (this as any).propertyChangeSubscribers.set(dependency, subscriber);
-                                    }
-                                    subscriber.add(()=>{
+                                    this.subscribeToStateChange(dependency, ()=>{
                                         textNode.nodeValue = this.getInterpolatedValue(childFragment.value);
                                     });
                                 });
@@ -82,10 +84,21 @@ export function Component(options:ComponentOptions){
                         })
                     }
                     else{
-                        document.body.appendChild(this.createElement(child));
+                        element.appendChild(this.createElement(child));
                     }
                 })
                 return element;
+            }
+
+
+            subscribeToStateChange(dependency:string, handler:Function){
+                this.addPropertyStateChangeSubscriber();
+                let subscriber = (this as any).propertyChangeSubscribers.get(dependency);
+                if(!subscriber){
+                    subscriber = new Set();
+                    (this as any).propertyChangeSubscribers.set(dependency, subscriber);
+                }
+                subscriber.add(handler);
             }
         }
     }
