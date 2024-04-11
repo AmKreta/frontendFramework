@@ -9,7 +9,7 @@ import { State } from "./lib/core/state/state";
         inner HTML
         <div>
             <p>{text}</p>
-            <button onclick="{logValue}"> click to increment {click_count} </button>
+            <button onclick={logValue}> click to increment {click_count} </button>
         </div>
     </div>`
 })
@@ -22,11 +22,12 @@ class Button{
 
    @Effect(['click_count'])
    update(){
-    console.log('ran');
+    console.log('effect ran');
    }
 
    logValue(e:MouseEvent){
-    console.log('')
+    console.log(this.click_count);
+    this.click_count++;
    }
 }
 

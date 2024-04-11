@@ -33,9 +33,15 @@ export function Component(options:ComponentOptions){
 
             createElement(elementTree:Node){
                 const element:HTMLElement = document.createElement(elementTree.tagName as string);
+                elementTree.ref = element;
                 elementTree.attributes.forEach((attribute:Attribute) => {
                     if(attribute.value.dependsOn?.length){
-                        (element as any)[attribute.name] = this.getInterpolatedValue(attribute.value.value);
+                        if(attribute.name.startsWith('on')){
+                            (element as any).addEventListener(attribute.name.substring(2),this.getInterpolatedValue(attribute.value.value).bind(this));
+                        }
+                        else{
+                            (element as any)[attribute.name] = this.getInterpolatedValue(attribute.value.value);
+                        }
                     }
                     else{
                         (element as any)[attribute.name] = attribute.value.value;
