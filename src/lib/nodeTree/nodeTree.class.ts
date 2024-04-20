@@ -75,10 +75,13 @@ export class NodeTree<T extends {}> {
     }
 
     private addPropertyStateChangeSubscriber() {
-        if ((this.componentClassContext as any).__proto__.propertyChangeSubscribers) {
+        if ((this.componentClassContext as any).propertyChangeSubscribers) {
             return;
         }
-        (this.componentClassContext as any).__proto__.propertyChangeSubscribers = new Map();
+        Object.defineProperty(this.componentClassContext, 'propertyChangeSubscribers',{
+            enumerable:false,
+            value : new Map()
+        });
     }
 
     private subscribeToStateChange(dependency: string, handler: Function) {

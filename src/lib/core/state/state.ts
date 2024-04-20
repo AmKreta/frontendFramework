@@ -3,12 +3,12 @@ export function State(){
         accessor:{get:(this:T)=>V, set:(this:T, v:V)=>void}, 
         context:ClassAccessorDecoratorContext<T,V>
     ){
-        context.addInitializer(function(this:any){
-            if(!this.__proto__.states){
-                this.__proto__.states = new Set();
-            }
-            this.__proto__.states.add(context.name);
-        });
+        // context.addInitializer(function(this:any){
+        //     if(!this.__proto__.states){
+        //         this.__proto__.states = new Set();
+        //     }
+        //     this.__proto__.states.add(context.name);
+        // });
 
         return {
             get(this:T){

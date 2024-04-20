@@ -1,8 +1,11 @@
 function addStateChangeSubscriberToPrototype(this:any){
-    if(this.__proto__.effectStateChageSubscribers){
+    if(this.constructor.prototype.effectStateChageSubscribers){
         return;
     }
-    this.__proto__.effectStateChageSubscribers = new Map();
+    Object.defineProperty(this.constructor.prototype,'effectStateChageSubscribers',{
+        enumerable:false,
+        value:new Map()
+    });
 }
 
 export function Effect(dependencies:string[]){
