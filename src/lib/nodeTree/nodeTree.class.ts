@@ -26,29 +26,32 @@ export class NodeTree<T extends {}>{
     }
 
     private createNodeTree(elementTree:Node){
-        const element:HTMLElement = document.createElement(elementTree.tagName as string);
+        const element:Element = document.createElement(elementTree.tagName as string);
         elementTree.ref = element;
         elementTree.attributes.forEach((attribute:Attribute) => {
             if(attribute.value.dependsOn?.length){
                 if(attribute.name.startsWith('on')){
-                    (element as any).addEventListener(attribute.name.substring(2),this.getInterpolatedValue(attribute.value.value).bind(this.componentClassContext));
+                    let attributeName = attribute.name.substring(2);
+                    let handler = this.getInterpolatedValue(attribute.value.value);
+                    let bindedHandler = handler.bind(this.componentClassContext);
+                    element.addEventListener(attributeName, bindedHandler);
                 }
                 else{
                     if(attribute.value.dependsOn){
-                        (element as any)[attribute.name] = this.getInterpolatedValue(attribute.value.value);
+                        element.setAttribute(attribute.name, this.getInterpolatedValue(attribute.value.value));
                         attribute.value.dependsOn.forEach(state=>{
                             this.subscribeToStateChange(state, ()=>{
-                                (element as any).setAttribute(attribute.name, this.getInterpolatedValue(attribute.value.value));
+                                element.setAttribute(attribute.name, this.getInterpolatedValue(attribute.value.value));
                             })
                         });
                     }
-                    (element as any)[attribute.name] = attribute.value.dependsOn 
+                    element.setAttribute(attribute.name, attribute.value.dependsOn 
                         ?this.getInterpolatedValue(attribute.value.value)
-                        :attribute.value.value;
+                        :attribute.value.value);
                 }
             }
             else{
-                (element as any)[attribute.name] = attribute.value.value;
+                element.setAttribute(attribute.name, attribute.value.value);
             }
         });
         elementTree.children.forEach(child=>{

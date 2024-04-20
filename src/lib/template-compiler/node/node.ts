@@ -2,7 +2,7 @@ import { AttributeValue } from "./AttributeValue";
 import { InnerText } from "./innerText";
 
 export class Node{
-    ref?:HTMLElement;
+    ref?:Element;
 
     constructor(
         public tagName:string,
