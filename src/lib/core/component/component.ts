@@ -11,18 +11,19 @@ export function Component(options:ComponentOptions){
         return class Component extends target{
             static template:Template
             nodeTree: NodeTree<this>;
+            componentDomRoot:Element | undefined;
 
             constructor(...args:any[]){
                 super(...args);
                 if(!Component.template){
                     Component.template = new Template(options.template);
                 }
-                this.nodeTree = new NodeTree(Component.template, this);
+                this.nodeTree = new NodeTree(this);
             }
 
             mount(){
-                const rootElement = this.nodeTree.create();
-                return rootElement;
+                this.componentDomRoot = this.nodeTree.create(Component.template);
+                return this.componentDomRoot
             }
         }
     }

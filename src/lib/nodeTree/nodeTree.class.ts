@@ -5,12 +5,11 @@ import { Template } from "../template/template.class";
 
 export class NodeTree<T extends {}> {
     constructor(
-        private template: Template,
         private componentClassContext: T
     ) { }
 
-    create() {
-        return this.createNodeTree(this.template.ast);
+    create(template: Template) {
+        return this.createNodeTree(template.ast);
     }
 
     private createNodeTree(elementNode: Node) {
@@ -81,7 +80,7 @@ export class NodeTree<T extends {}> {
         }
         (this.componentClassContext as any).__proto__.propertyChangeSubscribers = new Map();
     }
-    
+
     private subscribeToStateChange(dependency: string, handler: Function) {
         this.addPropertyStateChangeSubscriber();
         let subscriber = (this.componentClassContext as any).propertyChangeSubscribers.get(dependency);
